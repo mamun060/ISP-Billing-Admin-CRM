@@ -1,0 +1,5 @@
+db name: isp_billing_crm
+host: localhost
+
+dbusername: mamunsfs
+dbpass: sfs12345
