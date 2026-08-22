@@ -1,5 +1,10 @@
 db name: isp_billing_crm
 host: localhost
-
 dbusername: mamunsfs
 dbpass: sfs12345
+dbport: 5432
+
+admin login info:
+username: admin
+email: almamun.dev21@gmail.com 
+pass: AS!@#$%^
