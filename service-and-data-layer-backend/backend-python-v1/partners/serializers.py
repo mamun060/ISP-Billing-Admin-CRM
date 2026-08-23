@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Division, District, Upazila, Union, Partner
 from .models import CommissionAgreement
 from django.utils import timezone
+from form_permissions.serializers import DynamicFieldsModelSerializer
 
 
 class DivisionSerializer(serializers.ModelSerializer):
@@ -48,3 +49,15 @@ class PartnerSerializer(serializers.ModelSerializer):
                 effective_from=timezone.localdate(),
             )
         return partner
+
+
+class ZoneSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Partner
+        fields = ["id", "name", "code", "type", "parent_id"]
+
+
+class AreaSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Partner
+        fields = ["id", "name", "code", "type", "parent_id"]

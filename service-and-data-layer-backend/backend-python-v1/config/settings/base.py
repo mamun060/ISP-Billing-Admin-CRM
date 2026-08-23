@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "billing",
     "commission",
     "packages",
+    "form_permissions",
 ]
 
 MIDDLEWARE = [
