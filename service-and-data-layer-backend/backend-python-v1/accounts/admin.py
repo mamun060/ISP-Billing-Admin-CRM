@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-
 from .models import User, Role, Permission, RolePermission, UserRole
 
 
@@ -35,3 +34,4 @@ class RolePermissionAdmin(admin.ModelAdmin):
 class UserRoleAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "role")
     search_fields = ("user__username", "role__name")
+

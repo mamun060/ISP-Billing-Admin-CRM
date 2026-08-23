@@ -14,6 +14,7 @@ AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = ["accounts.backends.AccountsAuthBackend"]
 
 INSTALLED_APPS = [
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -47,6 +48,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
+            "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -88,6 +90,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Use Unfold's AdminSite implementation to enable Unfold context and sidebar
+DEFAULT_ADMIN_SITE = "unfold.sites.UnfoldAdminSite"
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -127,3 +132,12 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+
+# Unfold admin configuration
+UNFOLD = {
+    "SITE_TITLE": "ISP Billing CRM",
+    "SITE_HEADER": "ISP Billing CRM Admin",
+    "SITE_URL": "/",
+    "SIDEBAR": {"show_search": True, "show_all_applications": True, "navigation": {}},
+}
