@@ -3,6 +3,8 @@ from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -88,6 +90,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Use Unfold's AdminSite implementation to enable Unfold context and sidebar
@@ -139,5 +142,95 @@ UNFOLD = {
     "SITE_TITLE": "ISP Billing CRM",
     "SITE_HEADER": "ISP Billing CRM Admin",
     "SITE_URL": "/",
-    "SIDEBAR": {"show_search": True, "show_all_applications": True, "navigation": {}},
+    "COLORS": {
+        "primary": {
+            "50": "238, 242, 255",
+            "100": "224, 231, 255",
+            "200": "199, 210, 254",
+            "300": "165, 180, 252",
+            "400": "129, 140, 248",
+            "500": "99, 102, 241", # Indigo-500
+            "600": "79, 70, 229",
+            "700": "67, 56, 202",
+            "800": "55, 48, 163",
+            "900": "49, 46, 129",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Overview"),
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+            {
+                "title": _("Accounts"),
+                "icon": "manage_accounts",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Users"), "icon": "group", "link": reverse_lazy("admin:accounts_user_changelist")},
+                    {"title": _("Roles"), "icon": "admin_panel_settings", "link": reverse_lazy("admin:accounts_role_changelist")},
+                    {"title": _("Permissions"), "icon": "key", "link": reverse_lazy("admin:accounts_permission_changelist")},
+                    {"title": _("Role Permissions"), "icon": "key", "link": reverse_lazy("admin:accounts_rolepermission_changelist")},
+                    {"title": _("User Roles"), "icon": "badge", "link": reverse_lazy("admin:accounts_userrole_changelist")},
+                ],
+            },
+            {
+                "title": _("Partners"),
+                "icon": "account_tree",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Partners"), "icon": "handshake", "link": reverse_lazy("admin:partners_partner_changelist")},
+                    {"title": _("Commission Agreements"), "icon": "description", "link": reverse_lazy("admin:partners_commissionagreement_changelist")},
+                    {"title": _("Zones"), "icon": "map", "link": reverse_lazy("admin:partners_zone_changelist")},
+                    {"title": _("Areas"), "icon": "location_city", "link": reverse_lazy("admin:partners_area_changelist")},
+                    {"title": _("Divisions"), "icon": "public", "link": reverse_lazy("admin:partners_division_changelist")},
+                    {"title": _("Districts"), "icon": "location_on", "link": reverse_lazy("admin:partners_district_changelist")},
+                    {"title": _("Upazilas"), "icon": "location_on", "link": reverse_lazy("admin:partners_upazila_changelist")},
+                    {"title": _("Unions"), "icon": "location_on", "link": reverse_lazy("admin:partners_union_changelist")},
+                ],
+            },
+            {
+                "title": _("Billing"),
+                "icon": "receipt_long",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Clients"), "icon": "people", "link": reverse_lazy("admin:billing_client_changelist")},
+                    {"title": _("Payment Transactions"), "icon": "payments", "link": reverse_lazy("admin:billing_paymenttransaction_changelist")},
+                ],
+            },
+            {
+                "title": _("Packages"),
+                "icon": "inventory_2",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Packages"), "icon": "inventory_2", "link": reverse_lazy("admin:packages_package_changelist")},
+                ],
+            },
+            {
+                "title": _("Commission"),
+                "icon": "account_balance_wallet",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Commission Ledger"), "icon": "receipt", "link": reverse_lazy("admin:commission_commissionledger_changelist")},
+                ],
+            },
+            {
+                "title": _("Form Permissions"),
+                "icon": "policy",
+                "collapsible": True,
+                "items": [
+                    {"title": _("Access Templates"), "icon": "content_paste", "link": reverse_lazy("admin:form_permissions_accesstemplate_changelist")},
+                    {"title": _("Role Field Access"), "icon": "rule", "link": reverse_lazy("admin:form_permissions_rolefieldaccess_changelist")},
+                ],
+            },
+        ],
+    },
 }
