@@ -31,11 +31,10 @@ def calculate_commission(self, transaction_id):
     if not chain or chain[-1].type != "HQ":
         chain.append(hq)
 
-    partner_chain = [partner for partner in reversed(chain) if partner.type != "HQ"]
-    if not partner_chain:
+    ordered_non_hq = [partner for partner in reversed(chain) if partner.type != "HQ"]
+    if not ordered_non_hq:
         return []
 
-    ordered_non_hq = list(reversed(partner_chain))
     tx_date = transaction.paid_at.date() if transaction.paid_at else transaction.created_at.date()
     transaction_total = Decimal(str(transaction.amount))
 

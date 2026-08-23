@@ -6,5 +6,6 @@ dbport: 5432
 
 admin login info:
 username: admin
+phone: 01953103206
 email: almamun.dev21@gmail.com 
 pass: AS!@#$%^
