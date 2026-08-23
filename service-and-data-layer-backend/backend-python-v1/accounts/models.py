@@ -10,17 +10,18 @@ from partners.models import Partner
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, phone=None, email=None, password=None, **extra_fields):
-        if not phone and not email:
-            raise ValueError("Users must have either a phone number or email address.")
+    def create_user(self, phone=None, email=None, username=None, password=None, **extra_fields):
+        if not phone and not email and not username:
+            raise ValueError("Users must have either a username, phone number, or email address.")
 
         email = self.normalize_email(email) if email else None
-        user = self.model(phone=phone, email=email, **extra_fields)
+        username = username or (phone or email.split("@", 1)[0] if email else None)
+        user = self.model(phone=phone, email=email, username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone=None, email=None, password=None, **extra_fields):
+    def create_superuser(self, phone=None, email=None, username=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -30,11 +31,11 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(phone=phone, email=email, password=password, **extra_fields)
+        return self.create_user(phone=phone, email=email, username=username, password=password, **extra_fields)
 
 
 class User(AbstractUser):
-    username = None
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     partner = models.ForeignKey(
@@ -62,12 +63,20 @@ class User(AbstractUser):
 
     @property
     def login_identifier(self):
-        return self.phone or self.email
+        return self.username or self.phone or self.email
 
     def get_display_name(self):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
-        return self.phone or self.email or "User"
+        return self.username or self.phone or self.email or "User"
+
+    def save(self, *args, **kwargs):
+        if not self.username:
+            if self.phone:
+                self.username = self.phone
+            elif self.email:
+                self.username = self.email.split("@", 1)[0]
+        super().save(*args, **kwargs)
 
     def has_permission_code(self, permission_code):
         return self.user_roles.filter(role__permissions__code=permission_code).exists()
