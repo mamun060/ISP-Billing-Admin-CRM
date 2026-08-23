@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from packages.models import Package
 from partners.models import Partner
+from .validators import validate_file_size, validate_file_extension
 
 
 class Client(models.Model):
@@ -26,6 +27,18 @@ class Client(models.Model):
     owning_partner = models.ForeignKey(Partner, on_delete=models.PROTECT, related_name="clients")
     package = models.ForeignKey(Package, on_delete=models.PROTECT, related_name="clients")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    national_id = models.CharField(max_length=50, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=20, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    alternate_phone = models.CharField(max_length=30, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    division = models.ForeignKey('partners.Division', on_delete=models.SET_NULL, null=True, blank=True)
+    district = models.ForeignKey('partners.District', on_delete=models.SET_NULL, null=True, blank=True)
+    upazila = models.ForeignKey('partners.Upazila', on_delete=models.SET_NULL, null=True, blank=True)
+    union = models.ForeignKey('partners.Union', on_delete=models.SET_NULL, null=True, blank=True)
+    image = models.FileField(upload_to='clients/images/', null=True, blank=True, validators=[validate_file_size, validate_file_extension])
+    nid_scan = models.FileField(upload_to='clients/nid/', null=True, blank=True, validators=[validate_file_size, validate_file_extension])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

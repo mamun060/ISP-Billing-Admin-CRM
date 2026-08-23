@@ -106,3 +106,54 @@ class Area(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Division(models.Model):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "partners_division"
+
+    def __str__(self):
+        return self.name
+
+
+class District(models.Model):
+    name = models.CharField(max_length=255)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name="districts")
+    code = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "partners_district"
+
+    def __str__(self):
+        return self.name
+
+
+class Upazila(models.Model):
+    name = models.CharField(max_length=255)
+    district = models.ForeignKey(District, on_delete=models.CASCADE, related_name="upazilas")
+    code = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "partners_upazila"
+
+    def __str__(self):
+        return self.name
+
+
+class Union(models.Model):
+    name = models.CharField(max_length=255)
+    upazila = models.ForeignKey(Upazila, on_delete=models.CASCADE, related_name="unions")
+    code = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "partners_union"
+
+    def __str__(self):
+        return self.name

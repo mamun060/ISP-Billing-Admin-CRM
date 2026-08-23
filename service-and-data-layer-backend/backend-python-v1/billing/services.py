@@ -32,6 +32,7 @@ def record_payment(client_id, amount, method, gateway_ref):
                 paid_at=transaction.now(),
             )
 
+            # enqueue commission calculation; safe to retry
             calculate_commission.delay(transaction_obj.id)
             return transaction_obj
     except IntegrityError:
