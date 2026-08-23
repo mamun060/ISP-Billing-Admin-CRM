@@ -65,3 +65,37 @@ class RoleFieldAccess(models.Model):
     def __str__(self):
         target = self.field.key if self.field else (self.group.name if self.group else "(form)")
         return f"{self.role.name} -> {self.form.code}::{target} = {self.access}"
+
+
+class AccessTemplate(models.Model):
+    """A reusable template grouping RoleFieldAccess-like entries.
+
+    Templates are created by HQ admins and can be applied to roles (or users)
+    to generate concrete `RoleFieldAccess` entries.
+    """
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "form_permissions_accesstemplate"
+
+    def __str__(self):
+        return self.name
+
+
+class TemplateFieldAccess(models.Model):
+    template = models.ForeignKey(AccessTemplate, on_delete=models.CASCADE, related_name="fields")
+    form = models.ForeignKey(FormDefinition, on_delete=models.CASCADE)
+    group = models.ForeignKey(FormFieldGroup, on_delete=models.CASCADE, null=True, blank=True)
+    field = models.ForeignKey(FormField, on_delete=models.CASCADE, null=True, blank=True)
+    access = models.CharField(max_length=20, choices=RoleFieldAccess.ACCESS_CHOICES, default=RoleFieldAccess.ACCESS_HIDDEN)
+
+    class Meta:
+        db_table = "form_permissions_templatefieldaccess"
+        unique_together = ("template", "form", "group", "field")
+
+    def __str__(self):
+        target = self.field.key if self.field else (self.group.name if self.group else "(form)")
+        return f"{self.template.code} -> {self.form.code}::{target} = {self.access}"
