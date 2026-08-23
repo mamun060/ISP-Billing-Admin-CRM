@@ -2,8 +2,9 @@ from decimal import Decimal
 
 from django.db import IntegrityError, transaction
 
+from commission.tasks import calculate_commission
+
 from .models import Client, PaymentTransaction
-from .tasks import calculate_commission
 
 
 def record_payment(client_id, amount, method, gateway_ref):
