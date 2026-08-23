@@ -6,6 +6,10 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from mptt.models import MPTTModel, TreeForeignKey
+from django.conf import settings
+from django.contrib.auth.hashers import make_password, check_password
+
+from utils.crypto import encrypt_text, decrypt_text
 
 
 class Partner(MPTTModel):
@@ -85,6 +89,8 @@ class CommissionAgreement(models.Model):
 class Zone(models.Model):
     name = models.CharField(max_length=255)
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name="zones")
+    bank_account_encrypted = models.TextField(null=True, blank=True)
+    portal_password_hashed = models.CharField(max_length=128, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -94,10 +100,33 @@ class Zone(models.Model):
     def __str__(self):
         return self.name
 
+    def set_bank_account(self, plain: str):
+        self.bank_account_encrypted = encrypt_text(plain) if plain is not None else None
+
+    def get_bank_account(self) -> str:
+        return decrypt_text(self.bank_account_encrypted) if self.bank_account_encrypted else None
+
+    @property
+    def bank_account(self):
+        return self.get_bank_account()
+
+    def set_portal_password(self, raw_password: str):
+        if raw_password is None:
+            self.portal_password_hashed = None
+        else:
+            self.portal_password_hashed = make_password(raw_password)
+
+    def check_portal_password(self, raw_password: str) -> bool:
+        if not self.portal_password_hashed:
+            return False
+        return check_password(raw_password, self.portal_password_hashed)
+
 
 class Area(models.Model):
     name = models.CharField(max_length=255)
     zone = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name="areas")
+    bank_account_encrypted = models.TextField(null=True, blank=True)
+    portal_password_hashed = models.CharField(max_length=128, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -106,6 +135,27 @@ class Area(models.Model):
 
     def __str__(self):
         return self.name
+
+    def set_bank_account(self, plain: str):
+        self.bank_account_encrypted = encrypt_text(plain) if plain is not None else None
+
+    def get_bank_account(self) -> str:
+        return decrypt_text(self.bank_account_encrypted) if self.bank_account_encrypted else None
+
+    @property
+    def bank_account(self):
+        return self.get_bank_account()
+
+    def set_portal_password(self, raw_password: str):
+        if raw_password is None:
+            self.portal_password_hashed = None
+        else:
+            self.portal_password_hashed = make_password(raw_password)
+
+    def check_portal_password(self, raw_password: str) -> bool:
+        if not self.portal_password_hashed:
+            return False
+        return check_password(raw_password, self.portal_password_hashed)
 
 
 class Division(models.Model):

@@ -76,3 +76,29 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                     raise ValidationError({key: ["You do not have permission to modify this field."]})
 
         return super().to_internal_value(data)
+
+    def _roles_have_reveal(self, roles):
+        # check whether any role has module-level permission code 'reveal_sensitive'
+        for role in roles:
+            if role.permissions.filter(permission__code="reveal_sensitive").exists():
+                return True
+        return False
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # masking rule: bank_account -> show last 4 digits unless role has reveal_sensitive
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        roles = []
+        if user and hasattr(user, "roles"):
+            roles = [ur.role for ur in user.roles]
+
+        if "bank_account" in data:
+            reveal = self._roles_have_reveal(roles)
+            val = data.get("bank_account")
+            if val and not reveal:
+                # mask all but last 4
+                masked = "*" * max(0, len(val) - 4) + val[-4:]
+                data["bank_account"] = masked
+
+        return data

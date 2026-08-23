@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Division, District, Upazila, Union, Partner
+from .models import Division, District, Upazila, Union, Partner, Zone, Area
 from .models import CommissionAgreement
 from django.utils import timezone
 from form_permissions.serializers import DynamicFieldsModelSerializer
@@ -52,12 +52,66 @@ class PartnerSerializer(serializers.ModelSerializer):
 
 
 class ZoneSerializer(DynamicFieldsModelSerializer):
+    bank_account = serializers.CharField(read_only=True)
+    portal_password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
-        model = Partner
-        fields = ["id", "name", "code", "type", "parent_id"]
+        model = Zone
+        fields = ["id", "name", "partner_id", "bank_account", "portal_password"]
+
+    def create(self, validated_data):
+        pwd = validated_data.pop("portal_password", None)
+        bank = validated_data.pop("bank_account", None)
+        zone = super().create(validated_data)
+        if bank is not None:
+            zone.set_bank_account(bank)
+            zone.save()
+        if pwd is not None:
+            zone.set_portal_password(pwd)
+            zone.save()
+        return zone
+
+    def update(self, instance, validated_data):
+        pwd = validated_data.pop("portal_password", None)
+        bank = validated_data.pop("bank_account", None)
+        instance = super().update(instance, validated_data)
+        if bank is not None:
+            instance.set_bank_account(bank)
+            instance.save()
+        if pwd is not None:
+            instance.set_portal_password(pwd)
+            instance.save()
+        return instance
 
 
 class AreaSerializer(DynamicFieldsModelSerializer):
+    bank_account = serializers.CharField(read_only=True)
+    portal_password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
-        model = Partner
-        fields = ["id", "name", "code", "type", "parent_id"]
+        model = Area
+        fields = ["id", "name", "zone_id", "bank_account", "portal_password"]
+
+    def create(self, validated_data):
+        pwd = validated_data.pop("portal_password", None)
+        bank = validated_data.pop("bank_account", None)
+        area = super().create(validated_data)
+        if bank is not None:
+            area.set_bank_account(bank)
+            area.save()
+        if pwd is not None:
+            area.set_portal_password(pwd)
+            area.save()
+        return area
+
+    def update(self, instance, validated_data):
+        pwd = validated_data.pop("portal_password", None)
+        bank = validated_data.pop("bank_account", None)
+        instance = super().update(instance, validated_data)
+        if bank is not None:
+            instance.set_bank_account(bank)
+            instance.save()
+        if pwd is not None:
+            instance.set_portal_password(pwd)
+            instance.save()
+        return instance
