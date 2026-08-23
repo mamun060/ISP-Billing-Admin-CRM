@@ -1,5 +1,8 @@
 asgiref==3.12.1
 Django==6.1
+djangorestframework==3.15.2
+celery==5.4.0
+redis==5.0.8
 psycopg[binary]==3.2.4
 python-dotenv==1.1.1
 sqlparse==0.6.0
